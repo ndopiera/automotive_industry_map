@@ -19,9 +19,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Pillow installieren
-        run: python -m pip install "Pillow>=10,<13"
+        run: python -m pip install -r 03_Data_Export/requirements.txt
       - name: GeoJSON und Marker exportieren
-        run: python export_geojson.py
+        run: |
+          mkdir -p public
+          cp 04_Web_Map/index.html public/index.html
+          python 03_Data_Export/export_geojson.py
       - name: Export kontrollieren
         run: test -s public/unternehmen.geojson
       - uses: actions/configure-pages@v5

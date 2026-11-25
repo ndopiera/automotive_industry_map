@@ -1,0 +1,10 @@
+*.db
+!01_Database/automobilbranche_nrw.db
+*.db-wal
+*.db-shm
+*.db-journal
+.venv/
+.streamlit/secrets.toml
+__pycache__/
+/public/
+.env
