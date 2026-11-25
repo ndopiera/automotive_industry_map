@@ -1,5 +1,5 @@
 *.db
-!01_Database/companies_automotive_industry.db
+!01_Database/automotive_industry_companies.db
 *.db-wal
 *.db-shm
 *.db-journal
