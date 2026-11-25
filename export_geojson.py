@@ -75,6 +75,11 @@ def export():
                 props[label] = names(values, fallback)
                 props[label + '_filter'] = filter_values(values) or (fallback if label != 'subcategories' else '')
                 props[{'roles':'role_ids','categories':'category_ids','subcategories':'subcategory_ids'}[label]] = ids(values, key)
+            # Separate Filter pro Hauptkategorie (Variante B).
+            # Leere Felder bedeuten: keine Unterkategorie dieser Gruppe.
+            for main_id in range(2, 8):
+                selected = [s for s in subs if s['maincategory_id'] == main_id]
+                props[f'subcategories_{main_id}'] = filter_values(selected)
             street = ' '.join(str(r[k]) for k in ('address_line_1','address_line_2') if r[k])
             city = ' '.join(str(r[k]) for k in ('postal_code','city') if r[k])
             props['address'] = ', '.join(str(v) for v in (street, city, r['state_province_region'], r['country_code']) if v)
