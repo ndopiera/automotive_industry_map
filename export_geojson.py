@@ -5,6 +5,7 @@ from pathlib import Path
 from copy import deepcopy
 from PIL import Image, ImageDraw
 import os
+import colorsys
 
 DB = Path('automobilbranche_nrw.db')
 OUT = Path('public/unternehmen.geojson')
@@ -140,9 +141,19 @@ def export():
     unclassified = []
     with sqlite3.connect(DB.resolve().as_uri() + '?mode=ro', uri=True) as db:
         db.row_factory = sqlite3.Row
-        rows = db.execute('''SELECT l.*, c.name, c.website, c.description, s.name_de AS size
+        if 'review_status' not in {r[1] for r in db.execute('PRAGMA table_info(company)')}:
+            raise ValueError('Veröffentlichungsdatenbank aus V3 erforderlich.')
+        if db.execute("SELECT 1 FROM sqlite_master WHERE name='company_review'").fetchone():
+            raise ValueError('Interne Arbeitsdatenbank darf nicht veröffentlicht werden.')
+        for cat in db.execute('SELECT maincategory_id FROM main_category'):
+            i=cat[0]
+            CATEGORY_FILES.setdefault(i,f'{i:02d}_category')
+            if i not in CATEGORY_COLORS:
+                CATEGORY_COLORS[i]='#'+''.join(f'{round(x*255):02x}' for x in colorsys.hsv_to_rgb((i*.61803398875)%1,.68,.78))
+        layers = {i: [] for i in CATEGORY_FILES}
+        rows = db.execute('''SELECT l.*, c.name, c.website, c.description, c.review_status, s.name_de AS size
             FROM location l JOIN company c USING(company_id)
-            LEFT JOIN company_size s USING(size_id) ORDER BY l.location_id''').fetchall()
+            LEFT JOIN company_size s USING(size_id) WHERE c.review_status IN ('APPROVED','TEST') ORDER BY l.location_id''').fetchall()
         for r in rows:
             lat, lon = r['latitude'], r['longitude']
             if not all(isinstance(v, (int, float)) and math.isfinite(v) for v in (lat, lon)) or not (-90 <= lat <= 90 and -180 <= lon <= 180):
@@ -152,7 +163,7 @@ def export():
             roles = classifications(db, cid, 'company_role', 'supply_chain_role', 'role_id')
             cats = classifications(db, cid, 'company_category', 'main_category', 'maincategory_id')
             subs = classifications(db, cid, 'company_subcategory', 'subcategory', 'subcategory_id')
-            props = {k: r[k] for k in ('company_id','location_id','name','website','description','size','city','postal_code','address_line_1','address_line_2','state_province_region','country_code')}
+            props = {k: r[k] for k in ('company_id','location_id','name','website','description','review_status','size','city','postal_code','address_line_1','address_line_2','state_province_region','country_code')}
             props['size'] = props['size'] or 'Unbekannt'
             for label, values, key, fallback in [('roles', roles, 'role_id', 'Unbekannt'), ('categories', cats, 'maincategory_id', 'Nicht klassifiziert'), ('subcategories', subs, 'subcategory_id', 'Keine Zuordnung')]:
                 props[label] = names(values, fallback)
@@ -160,7 +171,7 @@ def export():
                 props[{'roles':'role_ids','categories':'category_ids','subcategories':'subcategory_ids'}[label]] = ids(values, key)
             # Separate Filter pro Hauptkategorie (Variante B).
             # Leere Felder bedeuten: keine Unterkategorie dieser Gruppe.
-            for main_id in range(2, 8):
+            for main_id in CATEGORY_FILES:
                 selected = [s for s in subs if s['maincategory_id'] == main_id]
                 props[f'subcategories_{main_id}'] = filter_values(selected)
             street = ' '.join(str(r[k]) for k in ('address_line_1','address_line_2') if r[k])
