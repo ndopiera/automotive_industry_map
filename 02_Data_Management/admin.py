@@ -69,7 +69,7 @@ def api(repo,token,endpoint,method='GET',payload=None):
     except urllib.error.URLError as e: raise ValueError(f'GitHub-Verbindung fehlgeschlagen: {e.reason}') from None
 
 def upload(repo,token,branch,data):
-    endpoint='/contents/01_Database/automobilbranche_nrw.db'; payload={'message':'Freigegebene Unternehmensdaten aktualisieren','content':base64.b64encode(data).decode(),'branch':branch}
+    endpoint='/contents/01_Database/companies_automotive_industry.db'; payload={'message':'Freigegebene Unternehmensdaten aktualisieren','content':base64.b64encode(data).decode(),'branch':branch}
     try: payload['sha']=api(repo,token,endpoint+'?ref='+urllib.parse.quote(branch,safe=''))['sha']
     except ValueError as e:
         if 'HTTP 404' not in str(e): raise

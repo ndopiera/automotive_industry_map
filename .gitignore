@@ -1,5 +1,5 @@
 *.db
-!01_Database/automobilbranche_nrw.db
+!01_Database/companies_automotive_industry.db
 *.db-wal
 *.db-shm
 *.db-journal

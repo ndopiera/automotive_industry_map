@@ -16,7 +16,7 @@ def connect(path):
     con.execute('PRAGMA foreign_keys=ON')
     return con
 
-path = Path(st.sidebar.text_input('Pfad zur SQLite-Datenbank', str(ROOT.parent / '01_Database' / 'automobilbranche_nrw_work.db'))).expanduser()
+path = Path(st.sidebar.text_input('Pfad zur SQLite-Datenbank', str(ROOT.parent / '01_Database' / 'companies_automotive_industry_work.db'))).expanduser()
 if not path.is_file():
     st.warning('Datenbank nicht gefunden. Wähle den Pfad deiner bestehenden Datenbank oder erstelle eine neue leere Datenbank.')
     if st.button('Neue Datenbank an diesem Pfad erstellen'):
@@ -155,7 +155,7 @@ if mode=='Veröffentlichung':
             st.session_state['public_scope']=(str(path.resolve()),include)
         except (sqlite3.Error,ValueError) as e: st.error(str(e))
     if st.session_state.get('public_scope')==(str(path.resolve()),include):
-        st.download_button('Erzeugten Stand herunterladen',st.session_state['public_bytes'],'automobilbranche_nrw_public.db')
+        st.download_button('Erzeugten Stand herunterladen',st.session_state['public_bytes'],'companies_automotive_industry.db')
         st.caption('Download ist der zuletzt erzeugte Stand; nach Änderungen erneut erzeugen. GitHub-Upload erzeugt immer einen neuen Stand.')
     repo=st.text_input('GitHub Repository','ndopiera/unternehmenskarte_automobilbranche'); branch=st.text_input('Branch','main'); workflow=st.text_input('Workflow-Datei','deploy.yml')
     token=st.text_input('GitHub Token (nur Sitzung)',type='password',value=os.environ.get('GITHUB_TOKEN',''))

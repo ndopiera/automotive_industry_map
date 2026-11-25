@@ -7,7 +7,7 @@ import os
 from markers import category_color, marker_url
 
 ROOT = Path(__file__).resolve().parent.parent
-DB = ROOT / '01_Database' / 'automobilbranche_nrw.db'
+DB = ROOT / '01_Database' / 'companies_automotive_industry.db'
 OUT = ROOT / 'public' / 'unternehmen.geojson'
 CATEGORY_FILES = {
     1: '01_vehicle_manufacturing', 2: '02_powertrain_energy',
