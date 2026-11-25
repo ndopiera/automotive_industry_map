@@ -1,0 +1,1 @@
+index.html, editor.html und config.json in public/ auf GitHub hochladen. Workflow abwarten. editor.html öffnen, gestalten, config.json exportieren und nur diese in public/ ersetzen. Öffentliche Karte ignoriert lokale Entwürfe. GeoJSON und Export bleiben unverändert.
